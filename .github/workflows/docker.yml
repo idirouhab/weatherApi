@@ -18,10 +18,10 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build docker image
-        run: docker build -t ${{ vars.ARTIFACTORY_DOCKER_REPO }}/weatherApi:${{ github.head_ref || github.ref_name }}  .
+        run: docker build -t ${{ vars.ARTIFACTORY_DOCKER_REPO }}/weatherapi:${{ github.head_ref || github.ref_name }}  .
 
       - name: Tag docker image
-        run: docker tag ${{ vars.ARTIFACTORY_DOCKER_REPO }}/weatherApi:${{ github.head_ref || github.ref_name }}  idirotest.jfrog.io/${{ vars.ARTIFACTORY_DOCKER_REPO }}/spring-petclinic:${{ github.head_ref || github.ref_name }}
+        run: docker tag ${{ vars.ARTIFACTORY_DOCKER_REPO }}/weatherapi:${{ github.head_ref || github.ref_name }}  idirotest.jfrog.io/${{ vars.ARTIFACTORY_DOCKER_REPO }}/spring-petclinic:${{ github.head_ref || github.ref_name }}
 
       - name: Build with Jfrog CLI
         uses: jfrog/setup-jfrog-cli@v4
@@ -34,6 +34,6 @@ jobs:
         run: |
           jf rt bce
           jf rt bag
-          jf docker push idirotest.jfrog.io/${{ vars.ARTIFACTORY_DOCKER_REPO }}/weatherApi:${{ github.head_ref || github.ref_name }} 
+          jf docker push idirotest.jfrog.io/${{ vars.ARTIFACTORY_DOCKER_REPO }}/weatherapi:${{ github.head_ref || github.ref_name }} 
           jf rt bp
           jf bs --fail=false
