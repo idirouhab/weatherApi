@@ -21,7 +21,7 @@ jobs:
         run: docker build -t ${{ vars.ARTIFACTORY_DOCKER_REPO }}/weatherapi:${{ github.head_ref || github.ref_name }}  .
 
       - name: Tag docker image
-        run: docker tag ${{ vars.ARTIFACTORY_DOCKER_REPO }}/weatherapi:${{ github.head_ref || github.ref_name }}  idirotest.jfrog.io/${{ vars.ARTIFACTORY_DOCKER_REPO }}/spring-petclinic:${{ github.head_ref || github.ref_name }}
+        run: docker tag ${{ vars.ARTIFACTORY_DOCKER_REPO }}/weatherapi:${{ github.head_ref || github.ref_name }}  idirotest.jfrog.io/${{ vars.ARTIFACTORY_DOCKER_REPO }}/weatherapi:${{ github.head_ref || github.ref_name }}
 
       - name: Build with Jfrog CLI
         uses: jfrog/setup-jfrog-cli@v4
