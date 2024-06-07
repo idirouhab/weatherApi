@@ -1,0 +1,54 @@
+name: DotNet
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '8.x'
+
+      - name: Build with JFrog CLI
+        uses: jfrog/setup-jfrog-cli@v4
+        env:
+          JF_URL: ${{ vars.JF_URL }}
+        with:
+          oidc-provider-name: jfrog-github
+
+      - name: Extract Build Information
+        id: buildinfo
+        run: |
+          PROJECT_FILE=$(find . -name "*.csproj" | head -n 1)
+          BUILD_NAME=$(basename $PROJECT_FILE .csproj)
+          VERSION=1.0.0
+          echo "BUILD_NAME=$BUILD_NAME" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Run JFrog CLI
+        env:
+          ARTIFACTORY_REPO: weatherapi-nuget
+          BUILD_NAME: ${{ env.BUILD_NAME }}
+          VERSION: ${{ env.VERSION }}
+        run: |
+          jf dotnet-config --repo-resolve=${ARTIFACTORY_REPO}
+          jf dotnet restore || export JFROG_BUILD_STATUS="FAIL"
+          jf dotnet build --configuration Release || export JFROG_BUILD_STATUS="FAIL"
+          jf rt u "*.nupkg" ${ARTIFACTORY_REPO}/ --build-name=${BUILD_NAME} --build-number=${VERSION} || export JFROG_BUILD_STATUS="FAIL"
+          jf rt bce ${BUILD_NAME} ${VERSION}
+          jf rt bag ${BUILD_NAME} ${VERSION}
+          jf rt bp ${BUILD_NAME} ${VERSION}
+          jf bs --fail=false ${BUILD_NAME} ${VERSION}

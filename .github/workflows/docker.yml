@@ -1,0 +1,39 @@
+name: Docker
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build docker image
+        run: docker build -t ${{ vars.ARTIFACTORY_DOCKER_REPO }}/weatherApi:${{ github.head_ref || github.ref_name }}  .
+
+      - name: Tag docker image
+        run: docker tag ${{ vars.ARTIFACTORY_DOCKER_REPO }}/weatherApi:${{ github.head_ref || github.ref_name }}  idirotest.jfrog.io/${{ vars.ARTIFACTORY_DOCKER_REPO }}/spring-petclinic:${{ github.head_ref || github.ref_name }}
+
+      - name: Build with Jfrog CLI
+        uses: jfrog/setup-jfrog-cli@v4
+        env:
+          JF_URL: ${{ vars.JF_URL }}
+        with:
+          oidc-provider-name: jfrog-github
+
+      - name: Run Jfrog CLI
+        run: |
+          jf rt bce
+          jf rt bag
+          jf docker push idirotest.jfrog.io/${{ vars.ARTIFACTORY_DOCKER_REPO }}/weatherApi:${{ github.head_ref || github.ref_name }} 
+          jf rt bp
+          jf bs --fail=false
