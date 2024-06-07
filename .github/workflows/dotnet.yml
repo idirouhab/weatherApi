@@ -41,8 +41,8 @@ jobs:
       - name: Run JFrog CLI
         env:
           ARTIFACTORY_REPO: weatherapi-nuget
-          BUILD_NAME: ${{ env.BUILD_NAME }}
-          VERSION: ${{ env.VERSION }}
+          BUILD_NAME: ${{ vars.BUILD_NAME }}
+          VERSION: ${{ vars.VERSION }}
         run: |
           jf dotnet-config --repo-resolve=${ARTIFACTORY_REPO}
           jf dotnet restore || export JFROG_BUILD_STATUS="FAIL"
