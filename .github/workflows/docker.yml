@@ -31,9 +31,12 @@ jobs:
           oidc-provider-name: jfrog-github
 
       - name: Run Jfrog CLI
+        env:
+          BUILD_NAME: "weatherApi"
+          VERSION: "1.0.0"
         run: |
-          jf rt bce
-          jf rt bag
+          jf rt bce $BUILD_NAME $VERSION
+          jf rt bag $BUILD_NAME $VERSION
           jf docker push idirotest.jfrog.io/${{ vars.ARTIFACTORY_DOCKER_REPO }}/weatherapi:${{ github.head_ref || github.ref_name }} 
-          jf rt bp
-          jf bs --fail=false
+          jf rt bp $BUILD_NAME $VERSION
+          jf bs --fail=false  $BUILD_NAME $VERSION
