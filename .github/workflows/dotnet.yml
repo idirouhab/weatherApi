@@ -47,9 +47,11 @@ jobs:
           jf dotnet-config --repo-resolve=${ARTIFACTORY_REPO}
           jf dotnet restore || export JFROG_BUILD_STATUS="FAIL"
           jf dotnet build --configuration Release || export JFROG_BUILD_STATUS="FAIL"
-          printenv
+          ls bin/Release
+          echo jf rt u "*.nupkg" ${ARTIFACTORY_REPO}/ --build-name=${BUILD_NAME} --build-number=${VERSION} 
           jf rt u "*.nupkg" ${ARTIFACTORY_REPO}/ --build-name=${BUILD_NAME} --build-number=${VERSION} || export JFROG_BUILD_STATUS="FAIL"
           jf rt bce ${BUILD_NAME} ${VERSION}
+          echo jf rt bce ${BUILD_NAME} ${VERSION}
           jf rt bag ${BUILD_NAME} ${VERSION}
           jf rt bp ${BUILD_NAME} ${VERSION}
           jf bs --fail=false ${BUILD_NAME} ${VERSION}
